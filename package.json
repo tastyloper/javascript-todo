@@ -1,0 +1,23 @@
+{
+  "name": "javascript-todo",
+  "version": "1.0.0",
+  "description": "JAVASCRIPT TODO application in FDS12",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tastyloper/javascript-todo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tastyloper/javascript-todo/issues"
+  },
+  "homepage": "https://github.com/tastyloper/javascript-todo#readme",
+  "dependencies": {
+    "eslint": "^5.16.0"
+  }
+}
