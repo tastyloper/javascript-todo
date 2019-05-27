@@ -4,105 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Todos V0-2</title>
-  <style>
-  body {
-    width: 500px;
-    margin: 0 auto;
-    text-align: center;
-  }
-  .input-todo {
-    padding-top: 30px;
-    width: 500px;
-    height: 60px;
-    font-size: 40px;
-    border: 0;
-  }
-  .input-todo:focus {
-    outline: none;
-  }
-  li {
-    text-align: left;
-    font-size: 25px;
-    list-style: none;
-    user-select: none;
-  }
-  li input[type=checkbox] {
-    transform: scale(1.5);
-    vertical-align: middle;
-  }
-  .remove {
-    transform: scale(1.2);
-    vertical-align: middle;
-  }
-  input[type=checkbox]:checked + span {
-    text-decoration: line-through;
-  }
-  </style>
+  <title>Todos 1.0</title>
+  <link href="css/style.css" rel="stylesheet">
+  <script defer src="js/app.js"></script>
 </head>
 <body>
-  <input class="input-todo" placeholder="What needs to be done?" autofocus>
-  <ul class="todos"></ul>
-  <script>
-    (function () {
-      let todos = [
-        { id: 1, content: 'HTML', completed: true },
-        { id: 2, content: 'CSS', completed: true },
-        { id: 3, content: 'Javascript', completed: false }
-      ];
-      const $inputTodo = document.querySelector('.input-todo');
-      const $todos = document.querySelector('.todos');
+  <div class="container">
+    <h1 class="title">Todos</h1>
+    <div class="ver">1.0</div>
 
-      
-      function htmlRendering() {
-        let html = '';
-        todos.forEach(({id, content, completed}) => {
-          html += `<li class="todo" id="${id}"><label><input type="checkbox"${completed ? ' checked' : ''}><span>${content}</span></label> <button class="remove">X</button></li>`;
-        });
-        $todos.innerHTML = html;
-      }
+    <input class="input-todo" placeholder="What needs to be done?" autofocus>
 
-      function removeTodo(id) {
-        todos = todos.filter(todo => todo.id !== +id);
-      }
+    <ul class="todos">
+      <!-- <li id="myId" class="todo-item">
+        <input class="custom-checkbox" type="checkbox" id="ck-myId">
+        <label for="ck-myId">HTML</label>
+        <i class="remove-todo far fa-times-circle"></i>
+      </li> -->
+    </ul>
 
-      function gerenateId() {
-        return todos.length ? Math.max(...todos.map(todo => todo.id)) + 1 : 1;
-      }
-
-      function addTodo(content) {
-        todos = [{id: gerenateId(), content, completed: false}, ...todos];
-      }
-
-      function changeCheck(itemId) {
-        todos = todos.map(todo => todo.id === itemId ? Object.assign({}, todo, {completed: !todo.completed}) : todo);
-      }
-
-
-      $todos.addEventListener('click', (e) => {
-        if (!e.target.classList.contains('remove')) return;
-        removeTodo(e.target.parentNode.id);
-        htmlRendering();
-      });
-
-      $inputTodo.addEventListener('keyup', (e) => {
-        const val = $inputTodo.value.trim();
-        if (val === '' || e.keyCode !== 13) return;
-
-        addTodo(val);
-        $inputTodo.value = '';
-        $inputTodo.focus();
-        htmlRendering();
-      });
-
-      $todos.addEventListener('change', (e) => {
-        changeCheck(+e.target.parentNode.parentNode.id)
-        htmlRendering();
-      });
-
-      htmlRendering();
-
-    }());
-  </script>
+    <div class="footer">
+      <div class="complete-all">
+        <input class="custom-checkbox" type="checkbox" id="ck-complete-all">
+        <label for="ck-complete-all">Mark all as complete</label>
+      </div>
+      <div class="clear-completed">
+        <button class="btn">Clear completed (<span class="completed-todos">0</span>)</button>
+        <strong class="active-todos">0</strong> items left
+      </div>
+    </div>
+  </div>
 </body>
 </html>
