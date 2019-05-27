@@ -1,51 +1,108 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>TODO Application v0.1</title>
+  <title>Todos V0-2</title>
+  <style>
+  body {
+    width: 500px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .input-todo {
+    padding-top: 30px;
+    width: 500px;
+    height: 60px;
+    font-size: 40px;
+    border: 0;
+  }
+  .input-todo:focus {
+    outline: none;
+  }
+  li {
+    text-align: left;
+    font-size: 25px;
+    list-style: none;
+    user-select: none;
+  }
+  li input[type=checkbox] {
+    transform: scale(1.5);
+    vertical-align: middle;
+  }
+  .remove {
+    transform: scale(1.2);
+    vertical-align: middle;
+  }
+  input[type=checkbox]:checked + span {
+    text-decoration: line-through;
+  }
+  </style>
 </head>
 <body>
-  <input type="text" class="input-todo" placeholder="Enter todo!">
-  <button class="add">Add</button>
+  <input class="input-todo" placeholder="What needs to be done?" autofocus>
   <ul class="todos"></ul>
   <script>
-    const $inputTodo = document.querySelector('.input-todo');
-    const $add = document.querySelector('.add');
-    const $todos = document.querySelector('.todos');
+    (function () {
+      let todos = [
+        { id: 1, content: 'HTML', completed: true },
+        { id: 2, content: 'CSS', completed: true },
+        { id: 3, content: 'Javascript', completed: false }
+      ];
+      const $inputTodo = document.querySelector('.input-todo');
+      const $todos = document.querySelector('.todos');
 
-    function addTodo(newTodo) {
-      $todos.innerHTML += `<li class="todo"><label><input type="checkbox">${newTodo}</label> <button class="remove">X</button></li>`;
-    }
-
-    function removeTodo(childNode) {
-      $todos.removeChild(childNode);
-    }
-
-    $add.onclick = () => {
-      addTodo($inputTodo.value);
-      $inputTodo.value = '';
-      $inputTodo.focus();
-    };
-
-    $todos.addEventListener('click', (e) => {
-      const target = e.target.parentNode;
-      if (target.classList.contains('todo') && e.target.classList.contains('remove')) removeTodo(target);
-    });
-
-    $todos.addEventListener('change', (e) => {
-      const target = e.target.parentNode.parentNode;
-      if (e.target.checked) {
-        target.style.textDecoration = 'line-through';
-        target.style.color = '#F00';
-        e.target.setAttribute('checked', 'checked');
-      } else {
-        target.style.textDecoration = 'none';
-        target.style.color = '#000';
-        e.target.removeAttribute('checked');
+      
+      function htmlRendering() {
+        let html = '';
+        todos.forEach(({id, content, completed}) => {
+          html += `<li class="todo" id="${id}"><label><input type="checkbox"${completed ? ' checked' : ''}><span>${content}</span></label> <button class="remove">X</button></li>`;
+        });
+        $todos.innerHTML = html;
       }
-    });
+
+      function removeTodo(id) {
+        todos = todos.filter(todo => todo.id !== +id);
+      }
+
+      function gerenateId() {
+        return todos.length ? Math.max(...todos.map(todo => todo.id)) + 1 : 1;
+      }
+
+      function addTodo(content) {
+        todos = [{id: gerenateId(), content, completed: false}, ...todos];
+      }
+
+      function changeCheck(itemId) {
+        todos = todos.map(todo => todo.id === itemId ? Object.assign({}, todo, {completed: !todo.completed}) : todo);
+      }
+
+
+      $todos.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('remove')) return;
+        removeTodo(e.target.parentNode.id);
+        htmlRendering();
+      });
+
+      $inputTodo.addEventListener('keyup', (e) => {
+        const val = $inputTodo.value.trim();
+        if (val === '' || e.keyCode !== 13) return;
+
+        addTodo(val);
+        $inputTodo.value = '';
+        $inputTodo.focus();
+        htmlRendering();
+      });
+
+      $todos.addEventListener('change', (e) => {
+        changeCheck(+e.target.parentNode.parentNode.id)
+        htmlRendering();
+      });
+
+      htmlRendering();
+
+    }());
   </script>
 </body>
 </html>
