@@ -2,24 +2,33 @@
   class Todo {
     constructor (todos = []) {
       this.todos = todos;
+      this.navState = 'all';
       this.$inputTodo = document.querySelector('.input-todo');
+      this.$nav = document.querySelector('.nav');
       this.$todos = document.querySelector('.todos');
       this.$completeAll = document.querySelector('.custom-checkbox');
       this.$completedTodos = document.querySelector('.completed-todos');
       this.$activeTodos = document.querySelector('.active-todos');
-      this.$clearBtn = document.querySelector('.btn');
+      this.$clearBtn = document.querySelector('.clear-completed > .btn');
 
+      this.$nav.addEventListener('click', this.navEvent.bind(this));
       this.$todos.addEventListener('click', this.removeEvent.bind(this));
       this.$inputTodo.addEventListener('keyup', this.addEvent.bind(this));
       this.$todos.addEventListener('change', this.checkEvent.bind(this));
       this.$completeAll.addEventListener('click', this.completeAllEvent.bind(this));
       this.$clearBtn.addEventListener('click', this.allClearEvent.bind(this));
-      this.htmlRendering();
+      this.render();
     }
 
-    htmlRendering() {
+    render() {
       let html = '';
-      this.todos.forEach(({id, content, completed}) => {
+      const _todos= this.todos.filter(todo => {
+        if (this.navState === 'active') return todo.completed;
+        if (this.navState === 'completed') return !todo.completed;
+        return true;
+      });
+
+      _todos.forEach(({id, content, completed}) => {
         html += `<li id="${id}" class="todo-item"><input class="custom-checkbox" type="checkbox" id="ck-${id}"${completed ? ' checked' : ''}><label for="ck-${id}">${content}</label><i class="remove-todo far fa-times-circle"></i></li>`
       });
       this.$todos.innerHTML = html;
@@ -60,10 +69,20 @@
       this.todos = this.todos.filter(val => !val.completed);
     }
 
+    navEvent(e) {
+      if (e.target.nodeName !== 'LI') return;
+      [...this.$nav.children].forEach(navItem => {
+        if (navItem === e.target) navItem.classList.add('active');
+        else navItem.classList.remove('active');
+      });
+      this.navState = e.target.id;
+      this.render();
+    }
+
     removeEvent(e) {
       if (!e.target.classList.contains('remove-todo')) return;
       this.removeTodo(e.target.parentNode.id);
-      this.htmlRendering();
+      this.render();
     }
 
     addEvent(e) {
@@ -73,22 +92,22 @@
       this.addTodo(val);
       this.$inputTodo.value = '';
       this.$inputTodo.focus();
-      this.htmlRendering();
+      this.render();
     }
 
     checkEvent(e) {
       this.changeCheck(+e.target.parentNode.id);
-      this.htmlRendering();
+      this.render();
     }
 
     completeAllEvent(e) {
       this.toggleCompletedAll(e.target.checked);
-      this.htmlRendering();
+      this.render();
     }
 
     allClearEvent(e) {
       this.clearAllDel();
-      this.htmlRendering();
+      this.render();
     }
   }
 
