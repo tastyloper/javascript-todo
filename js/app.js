@@ -21,7 +21,7 @@
     }
 
     getTodos() {
-      fetch('http://localhost:9000/todos/',)
+      fetch('http://52.79.226.167:4500/todos/',)
         .then(res => res.json())
         .then(todosFromServer => {
           this.render(todosFromServer);
@@ -30,6 +30,8 @@
     }
 
     render(todosFromServer) {
+      this.todos = todosFromServer;
+
       let html = '';
       const _todos= todosFromServer.filter(todo => {
         if (this.navState === 'active') return todo.completed;
@@ -47,7 +49,7 @@
     }
   
     removeTodo(id) {
-      fetch(`http://localhost:9000/todos/${id}`,{
+      fetch(`http://52.79.226.167:4500/todos/${id}`,{
         method: 'DELETE'
       })
         .then(res => res.json())
@@ -56,33 +58,34 @@
         })
         .catch(console.error);
     }
+
+    generateId() {
+      return this.todos.length ? Math.max(...this.todos.map(todo => todo.id)) + 1 : 1;
+    }
   
     addTodo(content) {
-      fetch('http://localhost:9000/todos/',)
-        .then(res => res.json())
-        .then(todosFromServer => {
-          fetch('http://localhost:9000/todos/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: todosFromServer.length ? Math.max(...todosFromServer.map(todo => todo.id)) + 1 : 1,
-              content,
-              completed: false
-            })
-          }).then(res => res.json())
-            .then(todosResult => {
-              this.render(todosResult);
-            })
-            .catch(console.error);
+      fetch('http://52.79.226.167:4500/todos/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: generateId(),
+          content,
+          completed: false
+        })
+      }).then(res => res.json())
+        .then(todosResult => {
+          this.render(todosResult);
         })
         .catch(console.error);
     }
   
     changeCheck(itemId) {
-      fetch(`http://localhost:9000/todos/${itemId}`, {
+      const { completed } = this.todos.find(todo => todo.id === +itemId);
+
+      fetch(`http://52.79.226.167:4500/todos/${itemId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: null
+        body: JSON.stringify({ completed: !completed })
       }).then(res => res.json())
         .then(todosResult => {
           this.render(todosResult);
@@ -91,7 +94,7 @@
     }
   
     toggleCompletedAll(checked) {
-      fetch('http://localhost:9000/todos/', {
+      fetch('http://52.79.226.167:4500/todos/', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({completed: checked})
@@ -103,7 +106,7 @@
     }
   
     clearAllDel() {
-      fetch('http://localhost:9000/todos/completed', {
+      fetch('http://52.79.226.167:4500/todos/completed', {
         method: 'DELETE'
       }).then(res => res.json())
         .then(todosResult => {
