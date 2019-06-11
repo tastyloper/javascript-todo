@@ -17,12 +17,23 @@
       this.$todos.addEventListener('change', this.checkEvent.bind(this));
       this.$completeAll.addEventListener('click', this.completeAllEvent.bind(this));
       this.$clearBtn.addEventListener('click', this.allClearEvent.bind(this));
-      this.render();
+      this.getTodos();
     }
 
-    render() {
+    getTodos() {
+      fetch('http://52.79.226.167:4500/todos/',)
+        .then(res => res.json())
+        .then(todosFromServer => {
+          this.render(todosFromServer);
+        })
+        .catch(console.error);
+    }
+
+    render(todosFromServer) {
+      this.todos = todosFromServer;
+
       let html = '';
-      const _todos= this.todos.filter(todo => {
+      const _todos= todosFromServer.filter(todo => {
         if (this.navState === 'active') return todo.completed;
         if (this.navState === 'completed') return !todo.completed;
         return true;
@@ -33,40 +44,75 @@
       });
       this.$todos.innerHTML = html;
   
-      this.$completedTodos.innerHTML = this.countCompletedTodos();
-      this.$activeTodos.innerHTML = this.countNotCompletedTodos();
+      this.$completedTodos.innerHTML = _todos.filter(val => val.completed).length;
+      this.$activeTodos.innerHTML = _todos.filter(val => !val.completed).length;
     }
   
     removeTodo(id) {
-      this.todos = this.todos.filter(todo => todo.id !== +id);
+      fetch(`http://52.79.226.167:4500/todos/${id}`,{
+        method: 'DELETE'
+      })
+        .then(res => res.json())
+        .then(todosFromServer => {
+          this.render(todosFromServer);
+        })
+        .catch(console.error);
     }
-  
-    gerenateId() {
+
+    generateId() {
       return this.todos.length ? Math.max(...this.todos.map(todo => todo.id)) + 1 : 1;
     }
   
     addTodo(content) {
-      this.todos = [{id: this.gerenateId(), content, completed: false}, ...this.todos];
+      fetch('http://52.79.226.167:4500/todos/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: generateId(),
+          content,
+          completed: false
+        })
+      }).then(res => res.json())
+        .then(todosResult => {
+          this.render(todosResult);
+        })
+        .catch(console.error);
     }
   
     changeCheck(itemId) {
-      this.todos = this.todos.map(todo => todo.id === itemId ? Object.assign({}, todo, {completed: !todo.completed}) : todo);
+      const { completed } = this.todos.find(todo => todo.id === +itemId);
+
+      fetch(`http://52.79.226.167:4500/todos/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: !completed })
+      }).then(res => res.json())
+        .then(todosResult => {
+          this.render(todosResult);
+        })
+        .catch(console.error);
     }
   
     toggleCompletedAll(checked) {
-      this.todos = this.todos.map(val => Object.assign({}, val, {completed: checked}));
-    }
-  
-    countCompletedTodos() {
-      return this.todos.filter(val => val.completed).length;
-    }
-  
-    countNotCompletedTodos() {
-      return this.todos.filter(val => !val.completed).length;
+      fetch('http://52.79.226.167:4500/todos/', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({completed: checked})
+      }).then(res => res.json())
+        .then(todosResult => {
+          this.render(todosResult);
+        })
+        .catch(console.error);
     }
   
     clearAllDel() {
-      this.todos = this.todos.filter(val => !val.completed);
+      fetch('http://52.79.226.167:4500/todos/completed', {
+        method: 'DELETE'
+      }).then(res => res.json())
+        .then(todosResult => {
+          this.render(todosResult);
+        })
+        .catch(console.error);
     }
 
     navEvent(e) {
@@ -76,13 +122,12 @@
         else navItem.classList.remove('active');
       });
       this.navState = e.target.id;
-      this.render();
+      this.getTodos();
     }
 
     removeEvent(e) {
       if (!e.target.classList.contains('remove-todo')) return;
       this.removeTodo(e.target.parentNode.id);
-      this.render();
     }
 
     addEvent(e) {
@@ -92,30 +137,21 @@
       this.addTodo(val);
       this.$inputTodo.value = '';
       this.$inputTodo.focus();
-      this.render();
     }
 
     checkEvent(e) {
       this.changeCheck(+e.target.parentNode.id);
-      this.render();
     }
 
     completeAllEvent(e) {
       this.toggleCompletedAll(e.target.checked);
-      this.render();
     }
 
     allClearEvent(e) {
       this.clearAllDel();
-      this.render();
     }
   }
 
-  let todos = [
-    { id: 1, content: 'HTML', completed: true },
-    { id: 2, content: 'CSS', completed: true },
-    { id: 3, content: 'Javascript', completed: false }
-  ];
-  new Todo(todos);
+  new Todo();
 
 }());
