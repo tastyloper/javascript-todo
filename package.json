@@ -19,5 +19,8 @@
   "homepage": "https://github.com/tastyloper/javascript-todo#readme",
   "dependencies": {
     "eslint": "^5.16.0"
+  },
+  "devDependencies": {
+    "typescript": "^3.5.1"
   }
 }
